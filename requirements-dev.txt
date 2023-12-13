@@ -1,0 +1,9 @@
+pre-commit
+pytest~=7.4.2
+httpx
+flake8
+black
+pytest-cov
+pytest-mock
+pylama[mccabe,pycodestyle,pyflakes,radon,mypy]
+tox

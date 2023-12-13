@@ -1,0 +1,10 @@
+{
+    "COAL_PLANT": "Elektrownie węglowe",
+    "GAS_PLANT": "Elektrownie gazowe",
+    "COAL_BOILER": "Kotły węglowe",
+    "GAS_BOILER": "Kotły gazowe",
+    "PV": "Panele fotowoltaiczne",
+    "HP": "Pompy ciepła",
+    "BATTERY": "Akumulatory",
+    "HEAT_STORAGE": "Magazyn ciepła"
+}

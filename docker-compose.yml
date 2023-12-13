@@ -1,0 +1,19 @@
+---
+version: '3.8'
+services:
+  zefir_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+
+  reverse-proxy:
+    build:
+      context: nginx/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - zefir_api

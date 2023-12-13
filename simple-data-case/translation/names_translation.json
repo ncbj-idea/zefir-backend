@@ -1,0 +1,10 @@
+{
+    "BOILER_GAS": "Kocioł na gaz ziemny",
+    "BOILER_COAL": "Kocioł starego typu na węgiel",
+    "COAL_BOILER": "Kocioł węglowy do grzania",
+    "HEAT_PLANT_COAL": "Elektrownia węglowa duża",
+    "HEAT_PLANT_GAS": "Elektrownia gazowa duża",
+    "PV_FARM": "Farma paneli fotowoltaicznych",
+    "POWER_PLANT_COAL": "Mocna elektrownia węglowowa ",
+    "BIG_HEAT_STORAGE": "Magazyn ciepła bardzo duży"
+}

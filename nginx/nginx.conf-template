@@ -1,0 +1,49 @@
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+
+events {}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+    keepalive_timeout  65;
+    proxy_set_header   Host $host;
+    proxy_set_header   X-Real-IP $remote_addr;
+    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location /api/v1 {
+            if ($request_method = OPTIONS ) {
+                add_header Access-Control-Allow-Origin "*";
+                add_header Access-Control-Allow-Headers "access-control-allow-origin, Allow, Access-Control-Allow-Headers, Origin, X-Requested-With, Content-Type, Accept, Authorization";
+                add_header Access-Control-Expose-Headers "access-control-allow-origin, Allow, Access-Control-Allow-Headers, Origin, X-Requested-With, Content-Type, Accept, Authorization";
+                add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD";
+                add_header Access-Control-Allow-Credentials "true";
+                add_header Content-Length 0;
+                add_header Content-Type text/plain;
+                return 204;
+            }
+
+            rewrite ^/api/v1(.*)$ $1 break;
+            proxy_pass http://zefir_api:${API_PORT};
+        }
+
+        add_header Access-Control-Allow-Origin "*";
+        add_header Access-Control-Allow-Headers "access-control-allow-origin, Allow, Access-Control-Allow-Headers, Origin, X-Requested-With, Content-Type, Accept, Authorization";
+        add_header Access-Control-Expose-Headers "access-control-allow-origin, Allow, Access-Control-Allow-Headers, Origin, X-Requested-With, Content-Type, Accept, Authorization";
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD";
+        add_header Access-Control-Allow-Credentials "true";
+    }
+}

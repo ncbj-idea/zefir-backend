@@ -1,0 +1,5 @@
+fastapi~=0.103.2
+uvicorn~=0.23.2
+gunicorn~=21.2.0
+zefir-analytics==0.0.8
+geopandas==0.14.1
