@@ -1,4 +1,3 @@
-name,energy_per_unit
-GAS,240.0
-COAL,210.0
-BIOMASS,225.0
+version https://git-lfs.github.com/spec/v1
+oid sha256:a1d190966e13ef7f05bb0fe28bec130d3e0e5ad308503b78e620bf3df8a63490
+size 56

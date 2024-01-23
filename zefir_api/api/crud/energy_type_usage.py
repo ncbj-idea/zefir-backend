@@ -1,8 +1,24 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import pandas as pd
 from zefir_analytics import ZefirEngine
 
+from zefir_api.api.config import params_config
 from zefir_api.api.crud.utils import flatten_multiindex, get_aggr_by_generator_name
-from zefir_api.api.env_params import COLD_US_ET_NAME, EE_US_ET_NAME, HEAT_US_ET_NAME
 from zefir_api.api.parameters import AggregateType
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
 
@@ -62,12 +78,12 @@ def _get_energy_type_usage(ze: ZefirEngine, energy_type: str) -> ZefirDataRespon
 
 
 def get_ee_usage(ze: ZefirEngine) -> ZefirDataResponse:
-    return _get_energy_type_usage(ze=ze, energy_type=EE_US_ET_NAME)
+    return _get_energy_type_usage(ze=ze, energy_type=params_config.usage_ee_name)
 
 
 def get_heat_usage(ze: ZefirEngine) -> ZefirDataResponse:
-    return _get_energy_type_usage(ze=ze, energy_type=HEAT_US_ET_NAME)
+    return _get_energy_type_usage(ze=ze, energy_type=params_config.usage_heat_name)
 
 
 def get_cold_usage(ze: ZefirEngine) -> ZefirDataResponse:
-    return _get_energy_type_usage(ze=ze, energy_type=COLD_US_ET_NAME)
+    return _get_energy_type_usage(ze=ze, energy_type=params_config.usage_cold_name)

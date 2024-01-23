@@ -1,30 +1,34 @@
-import os
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
-from pathlib import Path
 from typing import Final
 
 from zefir_analytics import ZefirEngine
 
-from zefir_api.api.utils import get_resources
-
-SOURCE_PATH: Final = Path(
-    os.getenv(key="SOURCE_PATH", default=get_resources("source_csv"))
-)
-RESULT_PATH: Final = Path(
-    os.getenv(key="RESULT_PATH", default=get_resources("results"))
-)
-PARAMETER_PATH: Final = Path(
-    os.getenv(key="PARAMETER_PATH", default=get_resources("parameters"))
-)
+from zefir_api.api.config import params_config
 
 
 def create_zefir_engines() -> dict[int, ZefirEngine]:
-    scenarios_folder = SOURCE_PATH / "scenarios"
+    scenarios_folder = params_config.source_path / "scenarios"
     return {
         int(id_.group()): ZefirEngine(
-            source_path=SOURCE_PATH,
-            result_path=RESULT_PATH / scenario_name.name,
-            parameter_path=PARAMETER_PATH,
+            source_path=params_config.source_path,
+            result_path=params_config.result_path / scenario_name.name,
+            parameter_path=params_config.parameter_path,
             scenario_name=scenario_name.name,
         )
         for scenario_name in scenarios_folder.iterdir()

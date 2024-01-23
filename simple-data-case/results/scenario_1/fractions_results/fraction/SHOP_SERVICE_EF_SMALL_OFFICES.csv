@@ -1,4 +1,3 @@
-Year,MF_BASIC,MF_GAS,MF_HP,OS_BASIC,OS_HP,SF_COAL,SF_GAS,SF_HP
-0,0.0,0.0,0.0,0.9,0.1,0.0,0.0,0.0
-1,0.0,0.0,0.0,0.9,0.09999999999999998,0.0,0.0,0.0
-2,0.0,0.0,0.0,0.4,0.6,0.0,0.0,0.0
+version https://git-lfs.github.com/spec/v1
+oid sha256:60e36443c64de088fb7d99f75ab758b3186bd17141f272f812de375c2534f23e
+size 181

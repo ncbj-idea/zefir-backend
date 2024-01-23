@@ -1,3 +1,19 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import pandas as pd
 from pyzefir.model.network import AggregatedConsumer, Network
 from zefir_analytics import ZefirEngine
@@ -7,7 +23,6 @@ from zefir_api.api.crud.utils import (
     get_aggr_by_generator_name,
     get_row_amount_of_device_in_agg,
 )
-from zefir_api.api.mapping import translator
 from zefir_api.api.parameters import AggregateType, ConsumptionType
 from zefir_api.api.payload.zefir_aggregate import (
     AreaData,
@@ -16,6 +31,7 @@ from zefir_api.api.payload.zefir_aggregate import (
     ZefirAggregateStacks,
     ZefirAggregateTotals,
 )
+from zefir_api.api.translation import translator
 
 
 def _filter_by_agg_type(

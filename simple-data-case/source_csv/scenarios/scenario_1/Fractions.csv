@@ -1,7 +1,3 @@
-technology_stack,aggregate,year,min_fraction,max_fraction,max_fraction_increase,max_fraction_decrease
-SF_COAL,SINGLE_FAMILY_EF_OLD_HOUSES,1,1,1,1,1
-SF_COAL,SINGLE_FAMILY_EF_OLD_HOUSES,2,1,1,1,1
-OS_BASIC,SHOP_SERVICE_EF_SMALL_OFFICES,1,0.9,0.9,1,1
-OS_BASIC,SHOP_SERVICE_EF_SMALL_OFFICES,2,0.4,0.4,1,1
-OS_BASIC,SHOP_SERVICE_EF_SMALL_OFFICES,3,1,1,1,1
-OS_HP,SHOP_SERVICE_EF_SMALL_OFFICES,2,0.6,0.6,1,1
+version https://git-lfs.github.com/spec/v1
+oid sha256:ccb7ac474374f9b4a94f51b1a3a940123426c1e4d841534197b45ccc12dc9d45
+size 406

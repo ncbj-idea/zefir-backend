@@ -1,11 +1,28 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from collections import defaultdict
 
 import pandas as pd
 from zefir_analytics import ZefirEngine
 
 from zefir_api.api.crud.utils import flatten_multiindex, translate_df_by_map
-from zefir_api.api.mapping import translator
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
+from zefir_api.api.translation import translator
+from zefir_api.api.transport_loader import transport_holder
 
 
 def _calculate_ets_emission_costs(
@@ -22,24 +39,27 @@ def _calculate_ets_emission_costs(
         return {}
     ets_fee_dict = dict(ets_fee_dict)
     for et, df in emissions_dict.items():
-        emission_fees_per_et = set(ets_fee_dict[et].keys())
-        for gen_name in df.index:
-            gen_ef = ze.network.generators[gen_name].emission_fee
-            common_gen_ef = emission_fees_per_et.intersection(gen_ef)
-            if not gen_ef or not common_gen_ef:
-                df = df.drop(gen_name)
-            else:
-                ets_df = ets_fee_dict[et][common_gen_ef.pop()].to_list()
-                df.loc[[gen_name]] = df.loc[[gen_name]].mul(ets_df)
-        emissions_dict[et] = df
+        if et in ets_fee_dict:
+            emission_fees_per_et = set(ets_fee_dict[et].keys())
+            for gen_name in df.index:
+                gen_ef = ze.network.generators[gen_name].emission_fee
+                common_gen_ef = emission_fees_per_et.intersection(gen_ef)
+                if not gen_ef or not common_gen_ef:
+                    df = df.drop(gen_name)
+                else:
+                    ets_df = ets_fee_dict[et][common_gen_ef.pop()].to_list()
+                    df.loc[[gen_name]] = df.loc[[gen_name]].mul(ets_df)
+            emissions_dict[et] = df
     return emissions_dict
 
 
 def _get_cost_type(ze: ZefirEngine, cost_type: str) -> ZefirDataResponse:
     df = ze.source_params.get_capex_opex(level="type")[[cost_type]].dropna()
     df = flatten_multiindex(df=df)
-    df = translate_df_by_map(df=df, mapping_dict=translator.translated_names)
-    return ZefirDataResponse.from_technology_df(df=df)
+    if cost_type == "capex":
+        capex_transport_df = transport_holder.get_capex(ze._scenario_name)
+        df = pd.concat([df, capex_transport_df])
+    return ZefirDataResponse.from_technology_df(df)
 
 
 def _calculate_var_cost(ze: ZefirEngine) -> pd.DataFrame:

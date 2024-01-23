@@ -1,9 +1,26 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from fastapi import APIRouter, HTTPException, Query, status
 
 from zefir_api.api.crud.zefir_data import method_to_data_category_map
 from zefir_api.api.parameters import DataCategory, ScenarioId
 from zefir_api.api.payload.zefir_data import (
     ZefirDataResponse,
+    ZefirFuelUnitsResponse,
     ZefirTechnologyTranslationResponse,
     ZefirYearsResponse,
 )
@@ -42,3 +59,8 @@ def get_sequence_of_years(scenario_id: ScenarioId) -> ZefirYearsResponse:
 )
 def get_translated_tags_map() -> ZefirTechnologyTranslationResponse:
     return ZefirTechnologyTranslationResponse.get_tags()
+
+
+@zefir_data_router.get("/get_fuel_units", response_model=list[ZefirFuelUnitsResponse])
+def get_fuel_units() -> list[ZefirFuelUnitsResponse]:
+    return ZefirFuelUnitsResponse.get_units()

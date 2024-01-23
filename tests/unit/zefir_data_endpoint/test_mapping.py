@@ -1,9 +1,27 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
-from zefir_api.api.mapping import NameTranslator, NameTranslatorError
-from zefir_api.api.utils import get_resources
+from zefir_api.api.config import params_config
+from zefir_api.api.loader import JsonLoaderError
+from zefir_api.api.translation import NameTranslator
 
 
 @pytest.fixture
@@ -52,9 +70,10 @@ def name_translator(mock_network: Mock) -> NameTranslator:
             id="translate names",
         ),
         pytest.param("TRANSLATE_JSON_FUELS_PATH", {"GAS": "Gaz"}, id="translate fuels"),
-        (
+        pytest.param(
             "TRANSLATE_JSON_LBS_PATH",
             {"SF_GAS": "LBS SF z gazem", "SF_HP": "LBS SF z HP"},
+            id="translate lbs",
         ),
         pytest.param(
             "TRANSLATE_JSON_ENERGY_PATH",
@@ -75,18 +94,16 @@ def test_get_translated_data(
 
 
 @pytest.mark.parametrize(
-    "env_name, default_path, iter_objects, expected_result",
+    "json_path, iter_objects, expected_result",
     [
         pytest.param(
-            "TRANSLATE_JSON_TAGS_PATH",
-            "translation/tags_translation.json",
+            params_config.translate_tags_path,
             {"Generator1": "tag1", "Generator2": "HP"},
             {"Generator1": "tag1", "Generator2": "Pompy ciepła"},
             id="tags",
         ),
         pytest.param(
-            "TRANSLATE_JSON_NAMES_PATH",
-            "translation/names_translation.json",
+            params_config.translate_names_path,
             ["PV_FARM", "Generator2"],
             {
                 "PV_FARM": "Farma paneli fotowoltaicznych",
@@ -95,22 +112,19 @@ def test_get_translated_data(
             id="names",
         ),
         pytest.param(
-            "TRANSLATE_JSON_FUELS_PATH",
-            "translation/fuel_translation.json",
+            params_config.translate_fuels_path,
             ["BIOMASS", "Fuel2"],
             {"BIOMASS": "Biomasa", "Fuel2": "Fuel2"},
             id="fuels",
         ),
         pytest.param(
-            "TRANSLATE_JSON_LBS_PATH",
-            "translation/lbs_translation.json",
+            params_config.translate_lbs_path,
             ["SF_COAL", "LBS2"],
             {"SF_COAL": "LBS SF z węglem", "LBS2": "LBS2"},
             id="lbs",
         ),
         pytest.param(
-            "TRANSLATE_JSON_ENERGY_PATH",
-            "translation/energy_translation.json",
+            params_config.translate_energy_path,
             ["HEAT", "COLD"],
             {"HEAT": "Ciepło systemowe", "COLD": "COLD"},
             id="energy",
@@ -119,14 +133,11 @@ def test_get_translated_data(
 )
 def test_get_translate(
     name_translator: NameTranslator,
-    env_name: str,
-    default_path: str,
+    json_path: Path,
     iter_objects: dict[str, str] | list[str],
     expected_result: dict[str, str],
 ) -> None:
-    result = name_translator._get_translate(
-        env_name, get_resources(default_path), iter_objects
-    )
+    result = name_translator._get_translate(json_path, iter_objects)
     assert result == expected_result
 
 
@@ -142,17 +153,15 @@ def test_create_mapping_dict(name_translator: NameTranslator) -> None:
 
 
 @pytest.mark.parametrize(
-    "env_name, default_path, iter_objects",
+    "json_path, iter_objects",
     [
         pytest.param(
-            "TRANSLATE_JSON_TAGS_PATH",
-            "tags_translation.json",
+            Path("/wrong/wrong_json_translation.json"),
             {"Generator1": "tag1", "Generator2": "HP"},
             id="wrong_path",
         ),
         pytest.param(
-            "TRANSLATE_JSON_NAMES_PATH",
-            "translation/names_translation.csv",
+            params_config.translate_names_path.with_suffix(".csv"),
             ["PV_FARM", "Generator2"],
             id="wrong_extension",
         ),
@@ -160,15 +169,12 @@ def test_create_mapping_dict(name_translator: NameTranslator) -> None:
 )
 def test_get_translate_invalid_json(
     name_translator: NameTranslator,
-    env_name: str,
-    default_path: str,
+    json_path: Path,
     iter_objects: dict[str, str] | list[str],
 ) -> None:
-    with pytest.raises(expected_exception=NameTranslatorError) as error_msg:
-        name_translator._get_translate(
-            env_name, get_resources(default_path), iter_objects
-        )
+    with pytest.raises(expected_exception=JsonLoaderError) as error_msg:
+        name_translator._get_translate(json_path, iter_objects)
     assert (
-        str(error_msg.value) == f"Given json path {get_resources(default_path)} "
+        str(error_msg.value) == f"Given json path {json_path} "
         "does not exists or its not a json extension"
     )

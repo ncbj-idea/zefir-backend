@@ -1,39 +1,74 @@
 # NCBiR backend
 
-The repository contains a backend to the web application for the NCBiR project
+The repository contains a backend to the web application for the NCBiR project.
 
-## Requirements
-- Docker :whale:
-- Docker-Compose :whale:
 
-## Quick Start
-Use make to and run docker:
-
-Create file .env with env vars (if not make will do it based on .env-template), then just call
-
+## Make setup
+Check if make is already installed
 ```bash
-make run 
+make --version
+```
+If not, install make
+```bash
+sudo apt install make
 ```
 
-or you can just call docker-compose
-```bash
-cp .env-template .env
-docker-compose up -d 
-```
 
-## Setup environment (make)
+## Make stages
+Install virtual environment and all dependencies
 ```bash
 make install
 ```
-
-## Setup environment (manual)
+Run linters check (black, pylama)
 ```bash
-python -m venv .venv
-source .venv/bin/active
-pip install -r requirements.txt -r requirements-dev.txt
-cp .env-template .env
+make lint
+```
+Create a copy of env file, create and start docker containter defined in `docker-compose.yml`
+```bash
+make run
+```
+Stop and remove container
+```bash
+make down
+```
+Remove temporary files such as .venv, .mypy_cache, .pytest_cache etc.
+```bash
+make clean
+```
+Run unit tests (runs lint stage before)
+```bash
+make test
+```
+___
+
+# Quick Start
+
+
+## Run docker container
+Ensure Docker has been installed before
+```bash
+make run
 ```
 
+
+## Creating project environment
+You can create virtual environment using make:
+```bash
+make install
+```
+or manually:
+```bash
+# Create and source virtual Environment
+python -m venv .venv
+source .venv/bin/active
+
+# Install all requirements and dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Init pre-commit hook
+pre-commit install
+```
 
 
 ## Usage
@@ -42,9 +77,3 @@ http://localhost/api/v1/docs
 
 Port can be assign in .env file (default is 5050)
 
-## Make command list
-- install: setup environment
-- lint: run linters 
-- clean: remove cache files and dirs from local env
-- run: run container
-- test: run tests

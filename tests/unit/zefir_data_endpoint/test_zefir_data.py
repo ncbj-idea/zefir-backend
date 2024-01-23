@@ -1,3 +1,19 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from collections import defaultdict
 
 from fastapi.testclient import TestClient
@@ -25,7 +41,7 @@ def test_get_data_wrong_data_category(client: TestClient) -> None:
     assert (
         data["detail"][0]["msg"]
         == "Input should be 'installed_power', 'ee_production', 'heat_production', 'cold_production', "
-        "'ee_usage', 'heat_usage', 'cold_usage', 'amount_of_devices', 'emissions', "
+        "'ee_usage', 'heat_usage', 'cold_usage', 'amount_of_devices', 'emissions', 'transport_emissions', "
         "'fuel_usage', 'capex', 'opex', 'var_cost', 'ets' or 'total_costs'"
     )
 

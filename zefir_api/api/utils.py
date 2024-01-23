@@ -1,8 +1,22 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 from pathlib import Path
 from typing import Final
-
-import pandas as pd
 
 _api_version: Final[str] = "1"
 _api_prefix: Final[str] = f"/api/v{_api_version}"
@@ -23,32 +37,3 @@ def get_api_version() -> str:
 
 def get_resources(x: str | Path) -> Path:
     return Path(os.path.join(RESOURCES_PATH, x))
-
-
-def load_map_file() -> pd.DataFrame | str:
-    MAP_FILE_PATH: Final = os.getenv(
-        "MAP_FILE_PATH", get_resources("map/polygonsFeatures.csv")
-    )
-    if not Path(MAP_FILE_PATH).exists():
-        raise FileNotFoundError(
-            f"Cannot find resources file under the path: {Path(MAP_FILE_PATH)}"
-        )
-    return pd.read_csv(Path(MAP_FILE_PATH), index_col="id")
-
-
-map_resource: Final = load_map_file()
-[
-    [
-        [21.043024529443795, 52.31246629855156],
-        [21.04309572538, 52.312479458095474],
-        [21.043108631215343, 52.312453780020014],
-        [21.043125513700012, 52.31245708575527],
-        [21.04316259561798, 52.312382778199975],
-        [21.043074513230536, 52.31236622307965],
-        [21.043062999277478, 52.312390258037674],
-        [21.043045048952116, 52.31238607130763],
-        [21.04302099690247, 52.31243739699859],
-        [21.043037586095934, 52.312440707820855],
-        [21.043024529443795, 52.31246629855156],
-    ]
-]

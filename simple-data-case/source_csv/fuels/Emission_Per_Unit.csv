@@ -1,4 +1,3 @@
-name,CO2,SO2
-GAS,2.72,0.0001
-COAL,2.86,0.035
-BIOMASS,2.5,0.001
+version https://git-lfs.github.com/spec/v1
+oid sha256:153ea1836631fb5c5cac02ffd13c85fc527fbb47ba8158c1df870182d8e74d40
+size 63

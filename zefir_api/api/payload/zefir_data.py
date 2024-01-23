@@ -1,3 +1,19 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
 
 from typing import Sequence
@@ -6,7 +22,8 @@ import pandas as pd
 from pydantic import BaseModel
 from zefir_analytics import ZefirEngine
 
-from zefir_api.api.mapping import translator
+from zefir_api.api.static_data import StaticData
+from zefir_api.api.translation import translator
 
 
 class TechnologyDataResponse(BaseModel):
@@ -17,6 +34,18 @@ class TechnologyDataResponse(BaseModel):
 class EmissionDataResponse(BaseModel):
     emission_type: str
     data: list[TechnologyDataResponse]
+
+    @staticmethod
+    def from_emission_dict(
+        emission_dict: dict[str, pd.DataFrame]
+    ) -> list[EmissionDataResponse]:
+        return [
+            EmissionDataResponse(
+                emission_type=emission_type,
+                data=ZefirDataResponse.from_technology_df(df=df).data,
+            )
+            for emission_type, df in emission_dict.items()
+        ]
 
 
 class EnergyDataResponse(BaseModel):
@@ -60,4 +89,24 @@ class ZefirTechnologyTranslationResponse(BaseModel):
 
     @staticmethod
     def get_tags() -> ZefirTechnologyTranslationResponse:
-        return ZefirTechnologyTranslationResponse(tags=translator.translated_tags)
+        return ZefirTechnologyTranslationResponse(
+            tags={
+                translator.translated_names.get(key, key): value
+                for key, value in translator.translated_tags.items()
+            }
+        )
+
+
+class ZefirFuelUnitsResponse(BaseModel):
+    fuel_name: str
+    fuel_unit: str
+
+    @staticmethod
+    def get_units() -> list[ZefirFuelUnitsResponse]:
+        return [
+            ZefirFuelUnitsResponse(
+                fuel_name=translator.translated_fuels.get(fuel_name, fuel_name),
+                fuel_unit=fuel_unit,
+            )
+            for fuel_name, fuel_unit in StaticData.load_fuel_units().items()
+        ]

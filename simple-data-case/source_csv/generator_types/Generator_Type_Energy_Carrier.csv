@@ -1,10 +1,3 @@
-generator_type,fuel_name,capacity_factor_name
-BOILER_GAS,GAS,
-BOILER_COAL,COAL,
-HEAT_PLANT_COAL,COAL,
-HEAT_PLANT_GAS,GAS,
-CHP_COAL,COAL,
-CHP_BIOMASS,BIOMASS,
-SMALL_PV,,SUN
-PV_FARM,,SUN
-POWER_PLANT_COAL,COAL,
+version https://git-lfs.github.com/spec/v1
+oid sha256:af8b6ffe8194d7d264edcdadbcf035a42698d9935216588dc740bd8bde659041
+size 208

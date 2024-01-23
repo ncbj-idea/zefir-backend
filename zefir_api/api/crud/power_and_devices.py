@@ -1,14 +1,30 @@
+# NCBR_backend
+# Copyright (C) 2023-2024 Narodowe Centrum Badań Jądrowych
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import pandas as pd
 from zefir_analytics import ZefirEngine
 
+from zefir_api.api.config import params_config
 from zefir_api.api.crud.utils import (
     flatten_multiindex,
     get_row_amount_of_device_in_agg,
     translate_df_by_map,
 )
-from zefir_api.api.env_params import TAGS_TO_DROP
-from zefir_api.api.mapping import translator
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
+from zefir_api.api.translation import translator
 
 
 def _map_name_to_type(ze: ZefirEngine, items: list[str]) -> list[str]:
@@ -24,7 +40,7 @@ def _map_name_to_type(ze: ZefirEngine, items: list[str]) -> list[str]:
 def _filter_types_to_not_display_at_installed_power(df: pd.DataFrame) -> pd.DataFrame:
     if translator.translated_tags is None:
         return df
-    for drop_tag in TAGS_TO_DROP:
+    for drop_tag in params_config.tags_to_drop:
         et_in_tag_names = [
             et_name
             for et_name, tag_name in translator.translated_tags.items()
