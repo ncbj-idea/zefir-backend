@@ -3,7 +3,6 @@ ifeq ($(OS),Windows_NT)
 else
     VENV_ACTIVATE := .venv/bin/activate
 endif
-PIP_INDEX := https://nexus.services.idea.edu.pl/repository/pypi-all/simple
 
 ifndef ENV_FILE_EXISTS
     ifeq ($(wildcard .env),)
@@ -18,14 +17,14 @@ endif
 $(VENV_ACTIVATE): requirements.txt requirements-dev.txt .pre-commit-config.yaml
 	python3.11 -m venv .venv
 	. $(VENV_ACTIVATE) && pip install --upgrade pip \
-		&& pip install -r requirements.txt -i $(PIP_INDEX) \
-		&& pip install -r requirements-dev.txt -i $(PIP_INDEX)
+		&& pip install -r requirements.txt -i  \
+		&& pip install -r requirements-dev.txt -i
 	. $(VENV_ACTIVATE) && pre-commit install
 
 install: $(VENV_ACTIVATE)
 
 lint: $(VENV_ACTIVATE)
-	. $(VENV_ACTIVATE) && black . && pylama -l mccabe,pycodestyle,pyflakes,radon,mypy zefir_api tests --async
+	. $(VENV_ACTIVATE) && black . && pylama -l mccabe,pycodestyle,pyflakes,radon,mypy zefir_api tests --async --skip=.*/*
 
 clean:
 	rm -rf $(VENV_ACTIVATE) .mypy_cache .pytest_cache .tox

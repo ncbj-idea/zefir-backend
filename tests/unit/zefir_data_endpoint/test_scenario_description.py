@@ -17,18 +17,18 @@
 from fastapi.testclient import TestClient
 
 
-def test_get_ee_usage(client: TestClient) -> None:
+def test_get_scenario_description(client: TestClient) -> None:
     response = client.get(
         "/zefir_static/get_scenario_description",
     )
     expected_response = {
         "id": 1,
         "name": "scenario_1",
-        "total_cost": 13000315614.383545,
+        "total_cost": 2885025053926.2666,
         "total_capex": 8263967.174171254,
         "total_opex": 12617487336.504877,
-        "total_varcost": 374311571.2039918,
-        "total_emission_CO2": 26039.770675994558,
+        "total_varcost": 2872377162642.3433,
+        "total_emission_CO2": 2281083.9112171233,
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc nec dolor quis urna",
         "analyze_time": 5,
         "analyze_step": 1,

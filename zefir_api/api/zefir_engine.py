@@ -28,6 +28,7 @@ def create_zefir_engines() -> dict[int, ZefirEngine]:
         int(id_.group()): ZefirEngine(
             source_path=params_config.source_path,
             result_path=params_config.result_path / scenario_name.name,
+            config_path=params_config.config_path,
             parameter_path=params_config.parameter_path,
             scenario_name=scenario_name.name,
         )

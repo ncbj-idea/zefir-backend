@@ -27,6 +27,7 @@ from zefir_api.api.utils import get_resources
 class ConfigParams:
     source_path: Path = get_resources("source_csv")
     result_path: Path = get_resources("results")
+    config_path: Path = get_resources("model_config.ini")
     parameter_path: Path = get_resources("parameters")
     polygons_file_path: Path = get_resources("map/polygonsFeatures.csv")
     fuel_units_path: Path = get_resources("static_data/fuel_units.json")

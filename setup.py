@@ -36,6 +36,9 @@ setup(
     setup_requires="",
     python_requires=">=3.11",
     author="Narodowe Centrum Badań Jądrowych",
-    license="GNU Affero General Public License v3.0",
-    classifiers=["License :: OSI Approved :: GNU Affero General Public License v3.0"],
+    license="GNU General Public License v3 or later (GPLv3+)",
+    classifiers=[
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Programming Language :: Python :: 3.11",
+    ],
 )

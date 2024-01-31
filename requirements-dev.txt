@@ -1,8 +1,8 @@
 pre-commit
-pytest~=7.4.2
+pytest==7.4.4
 httpx
 flake8
-black
+black==23.1.0
 pytest-cov
 pytest-mock
 pylama[mccabe,pycodestyle,pyflakes,radon,mypy]
