@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 
-from zefir_api.api.crud.map_handler import get_buildings_from_bbox, get_points
+from zefir_api.api.crud.map_handler import get_buildings_from_geometry, get_points
 from zefir_api.api.map import map_resource, points_resource
 from zefir_api.api.payload.zefir_map import (
+    MultiPolygonGeometry,
+    PolygonGeometry,
     ZefirMapBuildingResponse,
     ZefirMapPointResponse,
 )
@@ -26,11 +28,30 @@ from zefir_api.api.payload.zefir_map import (
 zefir_map_router = APIRouter(prefix="/zefir_map")
 
 
-@zefir_map_router.get("/get_buildings", response_model=list[ZefirMapBuildingResponse])
-def get_filtered_geometries(
-    bbox: list[float] = Query(..., description="Bounding box as a list of coordinates")
+@zefir_map_router.post(
+    "/polygon_buildings", response_model=list[ZefirMapBuildingResponse]
+)
+def get_filtered_geometries_in_polygon(
+    geometry: PolygonGeometry,
 ) -> list[ZefirMapBuildingResponse]:
-    return get_buildings_from_bbox(resource_df=map_resource, bbox=bbox)
+    return get_buildings_from_geometry(
+        resource_df=map_resource,
+        coordinates=geometry.coordinates,
+        geometry_type=geometry.type,
+    )
+
+
+@zefir_map_router.post(
+    "/multipolygon_buildings", response_model=list[ZefirMapBuildingResponse]
+)
+def get_filtered_geometries_in_multipolygon(
+    geometry: MultiPolygonGeometry,
+) -> list[ZefirMapBuildingResponse]:
+    return get_buildings_from_geometry(
+        resource_df=map_resource,
+        coordinates=geometry.coordinates,
+        geometry_type=geometry.type,
+    )
 
 
 @zefir_map_router.get("/get_points", response_model=list[ZefirMapPointResponse])

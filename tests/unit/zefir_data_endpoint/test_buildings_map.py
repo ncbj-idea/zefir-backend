@@ -16,29 +16,38 @@
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette import status
+
+from zefir_api.api.payload.zefir_map import PolygonCoordinates
 
 
 @pytest.mark.parametrize(
-    "bbox, expected_ids",
-    [
+    "polygon_coordinates, expected_ids",
+    (
         pytest.param(
-            [
-                21.003805955045422,
-                52.230679139264296,
-                21.008532090428147,
-                52.23271196434463,
-            ],
-            [5942],
+            (
+                (
+                    (21.008532090428147, 52.230679139264296),
+                    (21.008532090428147, 52.23271196434463),
+                    (21.003805955045422, 52.23271196434463),
+                    (21.003805955045422, 52.230679139264296),
+                    (21.008532090428147, 52.230679139264296),
+                ),
+            ),
+            (5942,),
             id="1 building",
         ),
         pytest.param(
-            [
-                20.869023197591606,
-                52.18175410575409,
-                20.875032709421458,
-                52.1843402389807,
-            ],
-            [
+            (
+                (
+                    (20.875032709421458, 52.18175410575409),
+                    (20.875032709421458, 52.1843402389807),
+                    (20.869023197591606, 52.1843402389807),
+                    (20.869023197591606, 52.18175410575409),
+                    (20.875032709421458, 52.18175410575409),
+                ),
+            ),
+            (
                 471,
                 803,
                 823,
@@ -80,17 +89,20 @@ from fastapi.testclient import TestClient
                 75096,
                 75470,
                 78456,
-            ],
+            ),
             id="40 buildings",
         ),
-    ],
+    ),
 )
-def test_zefir_map_filter_by_bbox(
-    client: TestClient, bbox: list[float], expected_ids: list[int]
+def test_zefir_map_filter_by_polygon(
+    client: TestClient, polygon_coordinates: PolygonCoordinates, expected_ids: list[int]
 ) -> None:
-    response = client.get(
-        "/zefir_map/get_buildings",
-        params={"bbox": bbox},
+    response = client.post(
+        "/zefir_map/polygon_buildings",
+        json={
+            "coordinates": polygon_coordinates,
+            "type": "Polygon",
+        },
     )
     assert response.status_code == 200
     data = response.json()
@@ -100,16 +112,84 @@ def test_zefir_map_filter_by_bbox(
 
 
 def test_zefir_map_filter_handle_huge_amount(client: TestClient) -> None:
-    bbox = [
-        21.059447057006928,
-        52.18071951587461,
-        21.21099067118059,
-        52.245914444148504,
-    ]
-    response = client.get(
-        "/zefir_map/get_buildings",
-        params={"bbox": bbox},
+    coordinates = (
+        (
+            (21.21099067118059, 52.18071951587461),
+            (21.21099067118059, 52.245914444148504),
+            (21.059447057006928, 52.245914444148504),
+            (21.059447057006928, 52.18071951587461),
+            (21.21099067118059, 52.18071951587461),
+        ),
+    )
+    response = client.post(
+        "/zefir_map/polygon_buildings",
+        json={
+            "coordinates": coordinates,
+            "type": "Polygon",
+        },
     )
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 18504
+
+
+def test_zefir_map_multipolygon(client: TestClient) -> None:
+    coordinates = (
+        (
+            (
+                (20.99859322904291, 52.23129969461175),
+                (21.004797362980923, 52.23129969461175),
+                (21.004797362980923, 52.233722136915475),
+                (21.01144376621025, 52.233722136915475),
+                (21.01144376621025, 52.23484908109384),
+                (20.99859322904291, 52.23484908109384),
+                (20.99859322904291, 52.23129969461175),
+            ),
+        ),
+        (
+            (
+                (21.0152381806071, 52.22465802347625),
+                (21.024108641570194, 52.22465802347625),
+                (21.024108641570194, 52.22859092802119),
+                (21.02106453371215, 52.22859092802119),
+                (21.02106453371215, 52.2271567155791),
+                (21.0152381806071, 52.2271567155791),
+                (21.0152381806071, 52.22465802347625),
+            ),
+        ),
+    )
+    response = client.post(
+        "/zefir_map/multipolygon_buildings",
+        json={
+            "coordinates": coordinates,
+            "type": "MultiPolygon",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 95
+
+
+@pytest.mark.parametrize(
+    "endpoint, type_, expected_status_code",
+    (
+        ("multipolygon_buildings", "Polygon", status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ("multipolygon_buildings", "MultiPolygon", status.HTTP_200_OK),
+        ("polygon_buildings", "MultiPolygon", status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ("polygon_buildings", "Polygon", status.HTTP_200_OK),
+    ),
+)
+def test_polygon_params(
+    endpoint: str,
+    type_: str,
+    expected_status_code: int,
+    client: TestClient,
+) -> None:
+    response = client.post(
+        f"/zefir_map/{endpoint}",
+        json={
+            "coordinates": [],
+            "type": type_,
+        },
+    )
+    assert response.status_code == expected_status_code

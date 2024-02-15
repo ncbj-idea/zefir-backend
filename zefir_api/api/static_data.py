@@ -25,7 +25,7 @@ from zefir_api.api.parameters import AggregateType, StaticPlotsFileNames
 
 
 class StaticDataError(Exception):
-    ...
+    pass
 
 
 class StaticData(JsonLoader):

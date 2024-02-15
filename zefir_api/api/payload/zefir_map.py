@@ -16,17 +16,27 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from typing import Literal, TypeAlias
 
-
-class BuildingGeometry(BaseModel):
-    type: str = "Polygon"
-    coordinates: list[list[list[float]]]
+from pydantic import BaseModel, Field
 
 
 class PointGeometry(BaseModel):
-    type: str = "Point"
+    type: Literal["Point"] = Field("Point", init=False)
     coordinates: list[float]
+
+
+PolygonCoordinates: TypeAlias = list[list[list[float]]]
+
+
+class MultiPolygonGeometry(BaseModel):
+    type: Literal["MultiPolygon"] = Field("MultiPolygon", init=False)
+    coordinates: list[PolygonCoordinates]
+
+
+class PolygonGeometry(BaseModel):
+    type: Literal["Polygon"] = Field("Polygon", init=False)
+    coordinates: PolygonCoordinates
 
 
 class BuildingProperty(BaseModel):
@@ -48,7 +58,7 @@ class PointProperties(BuildingProperty):
 class ZefirMapBuildingResponse(BaseModel):
     type: str = "Feature"
     id: int
-    geometry: BuildingGeometry
+    geometry: PolygonGeometry
     properties: BuildingProperty
 
     @staticmethod
@@ -58,7 +68,7 @@ class ZefirMapBuildingResponse(BaseModel):
         heat_type: str,
         name: int,
     ) -> ZefirMapBuildingResponse:
-        geometry = BuildingGeometry(coordinates=coordinates)
+        geometry = PolygonGeometry(coordinates=coordinates)
         properties = BuildingProperty(buildingType=building_type, heatType=heat_type)
         return ZefirMapBuildingResponse(
             id=name, geometry=geometry, properties=properties

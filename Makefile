@@ -3,6 +3,7 @@ ifeq ($(OS),Windows_NT)
 else
     VENV_ACTIVATE := .venv/bin/activate
 endif
+CODE_DIRS := zefir_api tests
 
 ifndef ENV_FILE_EXISTS
     ifeq ($(wildcard .env),)
@@ -14,17 +15,18 @@ endif
 
 .PHONY: install lint clean run down test
 
-$(VENV_ACTIVATE): requirements.txt requirements-dev.txt .pre-commit-config.yaml
+$(VENV_ACTIVATE): pyproject.toml .pre-commit-config.yaml
 	python3.11 -m venv .venv
 	. $(VENV_ACTIVATE) && pip install --upgrade pip \
-		&& pip install -r requirements.txt -i  \
-		&& pip install -r requirements-dev.txt -i
+		&& pip install . \
+		&& pip install .[dev]
 	. $(VENV_ACTIVATE) && pre-commit install
 
 install: $(VENV_ACTIVATE)
 
 lint: $(VENV_ACTIVATE)
-	. $(VENV_ACTIVATE) && black . && pylama -l mccabe,pycodestyle,pyflakes,radon,mypy zefir_api tests --async --skip=.*/*
+	. $(VENV_ACTIVATE) && black $(CODE_DIRS) \
+		&& pylama -l mccabe,pycodestyle,pyflakes,radon,mypy $(CODE_DIRS) --async --skip=.*/*
 
 clean:
 	rm -rf $(VENV_ACTIVATE) .mypy_cache .pytest_cache .tox

@@ -67,11 +67,11 @@ class ConfigParser:
                 config_dict.update(
                     (
                         key,
-                        Path(value)
-                        if section == "paths"
-                        else value.split("-")
-                        if section == "tags"
-                        else value,
+                        (
+                            Path(value)
+                            if section == "paths"
+                            else value.split("-") if section == "tags" else value
+                        ),
                     )
                     for key, value in config.items(section)
                 )

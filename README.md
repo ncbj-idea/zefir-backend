@@ -63,8 +63,8 @@ python -m venv .venv
 source .venv/bin/active
 
 # Install all requirements and dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install .
+pip install .[dev]
 
 # Init pre-commit hook
 pre-commit install

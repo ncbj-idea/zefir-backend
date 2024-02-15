@@ -14,25 +14,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Literal, overload
+
 import geopandas as gpd
 import pandas as pd
-from shapely import geometry
-from shapely.geometry import Polygon
+from shapely import MultiPolygon, Polygon
+from shapely.geometry.base import BaseGeometry
 
 from zefir_api.api.payload.zefir_map import (
+    PolygonCoordinates,
     ZefirMapBuildingResponse,
     ZefirMapPointResponse,
 )
 
 
-def _found_geometry_in_bbox(
-    bbox_polygon: Polygon, gdf: gpd.GeoDataFrame
+def _find_geometry_indices_in_given_geometry(
+    geometry: BaseGeometry, gdf: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
     """
-    Finds the indices of geometries within a specified bounding box.
+    Finds the indices of geometries within a specified geometry.
 
     Parameters:
-    - bbox_polygon (Polygon): Shapely Polygon representing the bounding box.
+    - geometry (BaseGeometry): Shapely Polygon or MultiPolygon representing the bounding box.
     - gdf (gpd.GeoDataFrame): GeoDataFrame containing geographical resources
 
     Returns:
@@ -42,29 +45,51 @@ def _found_geometry_in_bbox(
     1. Determines which geometries from the GeoDataFrame fall within the bounding box.
     2. Returns a GeoDataFrame containing geometries within the specified bounding box.
     """
-    return gdf[gdf.geometry.within(bbox_polygon)]
+    return gdf[gdf.geometry.within(geometry)]
 
 
-def get_buildings_from_bbox(
-    resource_df: gpd.GeoDataFrame, bbox: list[float]
+@overload
+def get_buildings_from_geometry(
+    resource_df: gpd.GeoDataFrame,
+    coordinates: PolygonCoordinates,
+    geometry_type: Literal["Polygon"],
+) -> list[ZefirMapBuildingResponse]:
+    pass
+
+
+@overload
+def get_buildings_from_geometry(
+    resource_df: gpd.GeoDataFrame,
+    coordinates: list[PolygonCoordinates],
+    geometry_type: Literal["MultiPolygon"],
+) -> list[ZefirMapBuildingResponse]:
+    pass
+
+
+def get_buildings_from_geometry(
+    resource_df: gpd.GeoDataFrame,
+    coordinates: PolygonCoordinates | list[PolygonCoordinates],
+    geometry_type: Literal["Polygon", "MultiPolygon"],
 ) -> list[ZefirMapBuildingResponse]:
     """
-    Retrieves buildings from a DataFrame filtered by a specified bounding box.
+    Retrieves buildings from a DataFrame filtered by a specified polygon.
 
     Parameters:
     - resource_df (gpd.GeoDataFrame): GeoDataFrame containing geographical resources.
-    - bbox (list): Bounding box coordinates in the form of [min_x, min_y, max_x, max_y].
+    - coordinates (list): Bounding box coordinates in the form of [min_x, min_y, max_x, max_y].
+    - geometry_type (list): Bounding box coordinates in the form of [min_x, min_y, max_x, max_y].
 
     Returns:
     list: A list of ZefirMapResponse objects created from the filtered DataFrame.
-
-    The method performs the following steps:
-    2. Constructs a bounding box Polygon based on the provided bbox.
-    3. Calls the '_found_geometry_in_bbox' method to obtain geometries within the bounding box.
-    5. Applies a custom method (ZefirMapResponse.create_from_series) to create a list of ZefirMapResponse objects.
     """
-    bbox_polygon = geometry.box(*bbox)
-    filtered_df = _found_geometry_in_bbox(bbox_polygon=bbox_polygon, gdf=resource_df)
+    if geometry_type == "Polygon":
+        geometry = Polygon(*coordinates)
+    else:
+        geometry = MultiPolygon(coordinates)
+
+    filtered_df = _find_geometry_indices_in_given_geometry(
+        geometry=geometry, gdf=resource_df
+    )
 
     return [
         ZefirMapBuildingResponse.create_polygons_from_dict(

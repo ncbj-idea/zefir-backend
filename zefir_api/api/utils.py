@@ -21,10 +21,7 @@ from typing import Final
 _api_version: Final[str] = "1"
 _api_prefix: Final[str] = f"/api/v{_api_version}"
 
-RESOURCES_PATH: Final = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "simple-data-case",
-)
+RESOURCES_PATH = os.getenv("RESOURCES_PATH", os.path.join(".", "simple-data-case"))
 
 
 def get_api_prefix() -> str:

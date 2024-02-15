@@ -1,0 +1,10 @@
+---
+include:
+  - project: cae/zefirlib/pyzefir-cicd
+    file: pyzefir-gitlab-cicd.yml
+
+
+variables:
+  IPY_BUMPVERSION_AUTO: 'false'
+  IPY_BUILD_PACKAGE: 'false'
+  IPY_BUILD_DOCKER_IMAGE: 'true'

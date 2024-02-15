@@ -20,7 +20,7 @@ from zefir_analytics import ZefirEngine
 
 
 class NotFoundInNetworkError(Exception):
-    ...
+    pass
 
 
 def _find_bus_by_energy_type(
