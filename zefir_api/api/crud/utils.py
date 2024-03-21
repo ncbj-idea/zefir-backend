@@ -17,6 +17,7 @@
 import pandas as pd
 from pyzefir.model.network import Network
 from zefir_analytics import ZefirEngine
+from pyzefir.model.network_elements.energy_sources.generator import Generator
 
 
 class NotFoundInNetworkError(Exception):
@@ -37,6 +38,21 @@ def _find_lbs_by_bus(network: Network, bus_name: str, energy_type: str) -> str |
         if bus_name in lbs.buses[energy_type]:
             return lbs.name
     return None
+
+
+def get_mapped_generator_to_aggr(
+    df: pd.DataFrame, ze: ZefirEngine, energy_type: str
+) -> pd.DataFrame:
+    df = df.rename(
+        {
+            name: get_aggr_by_generator_name(
+                gen_name=name, ze=ze, energy_type=energy_type
+            )
+            for name in df.index
+        }
+    )
+    df = df.drop(index="not_found_energy_type", errors="ignore")
+    return df.groupby(df.index).sum()
 
 
 def get_aggr_by_generator_name(gen_name: str, ze: ZefirEngine, energy_type: str) -> str:
@@ -85,3 +101,11 @@ def get_row_amount_of_device_in_agg(
 def translate_df_by_map(df: pd.DataFrame, mapping_dict: dict[str, str]) -> pd.DataFrame:
     df.index = df.index.map(mapping_dict)
     return df.groupby(df.index).sum()
+
+
+def filter_generators_by_tag(ze: ZefirEngine, tags: list[str]) -> list[Generator]:
+    return [
+        g
+        for g in ze.network.generators.values()
+        if set(tags).intersection(ze.network.generator_types[g.energy_source_type].tags)
+    ]

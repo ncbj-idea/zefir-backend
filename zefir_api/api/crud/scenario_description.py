@@ -21,37 +21,52 @@ from zefir_analytics import ZefirEngine
 from zefir_api.api.config import params_config
 from zefir_api.api.crud.costs import _calculate_ets_fee, _calculate_var_cost
 from zefir_api.api.crud.utils import flatten_multiindex
+from zefir_api.api.parameters import Area, Scenario
 from zefir_api.api.payload.zefir_static import StaticScenarioDescriptionResponse
-from zefir_api.api.static_data import StaticData
+from zefir_api.api.zefir_engine import ze
 
 
-def _get_time_of_result_creation(scenario_name: str) -> datetime:
-    creation_time = (params_config.result_path / scenario_name).stat().st_ctime
+def _get_time_of_result_creation(scenario_name: str, area_name: str) -> datetime:
+    creation_time = (
+        (params_config.get_result_path(area_name) / scenario_name).stat().st_ctime
+    )
     return datetime.fromtimestamp(creation_time)
 
 
+def generate_scenarios_description(
+    area: Area,
+) -> list[StaticScenarioDescriptionResponse]:
+    return [
+        generate_scenario_description(
+            scenario=scenario, engine=ze[scenario.id], area_name=area.name
+        )
+        for scenario in area.scenarios
+        if scenario.id in ze
+    ]
+
+
 def generate_scenario_description(
-    scenario_id: int, ze: ZefirEngine
+    scenario: Scenario,
+    engine: ZefirEngine,
+    area_name: str,
 ) -> StaticScenarioDescriptionResponse:
-    capex_opex = ze.source_params.get_capex_opex(level="type")
+    capex_opex = engine.source_params.get_capex_opex(level="type")
     capex, opex = capex_opex[["capex"]], capex_opex[["opex"]]
     capex = flatten_multiindex(capex.dropna()).sum().sum()
     opex = flatten_multiindex(opex.dropna()).sum().sum()
-    var_cost = _calculate_var_cost(ze).sum().sum()
-    total_cost = capex + opex + var_cost + _calculate_ets_fee(ze).sum().sum()
-    CO2_emissions = ze.source_params.get_emission(level="type")[["CO2"]].sum()
+    var_cost = _calculate_var_cost(engine).sum().sum()
+    total_cost = capex + opex + var_cost + _calculate_ets_fee(engine).sum().sum()
+    CO2_emissions = engine.source_params.get_emission(level="type")[["CO2"]].sum()
     return StaticScenarioDescriptionResponse(
-        id=scenario_id,
-        name=ze._scenario_name,
+        id=scenario.id,
+        name=engine.scenario_name,
         total_cost=total_cost,
         total_capex=capex,
         total_opex=opex,
         total_varcost=var_cost,
         total_emission_CO2=CO2_emissions,
-        date=_get_time_of_result_creation(ze._scenario_name),
-        description=StaticData.load_scenarios_description(
-            scenario_name=ze._scenario_name
-        ),
-        analyze_time=ze.network.constants.n_years,
-        analyze_step=int(ze.network.constants.n_hours / 8760),
+        date=_get_time_of_result_creation(engine.scenario_name, area_name),
+        description=scenario.description,
+        analyze_time=engine.network.constants.n_years,
+        analyze_step=int(engine.network.constants.n_hours / 8760),
     )

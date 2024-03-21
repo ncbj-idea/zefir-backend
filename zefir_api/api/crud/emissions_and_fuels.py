@@ -25,6 +25,7 @@ from zefir_api.api.payload.zefir_data import (
 )
 from zefir_api.api.translation import translator
 from zefir_api.api.transport_loader import transport_holder
+from zefir_api.api.zefir_engine import get_scenario_id
 
 
 def get_emissions(ze: ZefirEngine) -> ZefirDataResponse:
@@ -88,7 +89,7 @@ def get_fuel_usage(ze: ZefirEngine) -> ZefirDataResponse:
 def get_transport_emissions(ze: ZefirEngine) -> ZefirDataResponse:
     years = ZefirYearsResponse.get_years(ze).years
     emission_dict = transport_holder.get_transport_emissions(
-        scenario_name=ze._scenario_name
+        scenario_id=get_scenario_id(ze.scenario_name)
     )
     emissions = EmissionDataResponse.from_emission_dict(emission_dict=emission_dict)
     return ZefirDataResponse(years=years, data=emissions)

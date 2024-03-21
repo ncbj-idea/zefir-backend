@@ -62,7 +62,7 @@ def test_get_agg_totals(
 ) -> None:
     response = client.get(
         "/zefir_aggregate/get_totals",
-        params={"scenario_id": 1, "aggregate_type": aggregate_type},
+        params={"scenario_id": 0, "aggregate_type": aggregate_type},
     )
     assert response.status_code == 200
     data = response.json()
@@ -124,7 +124,7 @@ def test_get_stacks_info(
 ) -> None:
     response = client.get(
         "/zefir_aggregate/get_stacks",
-        params={"scenario_id": 1, "aggregate_type": aggregate_type},
+        params={"scenario_id": 0, "aggregate_type": aggregate_type},
     )
     assert response.status_code == 200
     data = response.json()
@@ -171,7 +171,7 @@ def test_get_agg_details(
 ) -> None:
     response = client.get(
         "/zefir_aggregate/details",
-        params={"scenario_id": 1, "aggregate_type": aggregate_type},
+        params={"scenario_id": 0, "aggregate_type": aggregate_type},
     )
     assert response.status_code == 200
     data = response.json()

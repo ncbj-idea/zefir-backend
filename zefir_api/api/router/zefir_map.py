@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from starlette import status
 
 from zefir_api.api.crud.map_handler import get_buildings_from_geometry, get_points
 from zefir_api.api.map import map_resource, points_resource
@@ -24,6 +25,7 @@ from zefir_api.api.payload.zefir_map import (
     ZefirMapBuildingResponse,
     ZefirMapPointResponse,
 )
+from zefir_api.api.zefir_engine import area_scenario_mapping
 
 zefir_map_router = APIRouter(prefix="/zefir_map")
 
@@ -33,9 +35,16 @@ zefir_map_router = APIRouter(prefix="/zefir_map")
 )
 def get_filtered_geometries_in_polygon(
     geometry: PolygonGeometry,
+    area_id: int = 0,
 ) -> list[ZefirMapBuildingResponse]:
+    area = area_scenario_mapping.get(area_id)
+    if area is None or (area_map_resource := map_resource.get(area.name)) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Area ID {area_id} not found",
+        )
     return get_buildings_from_geometry(
-        resource_df=map_resource,
+        resource_df=area_map_resource,
         coordinates=geometry.coordinates,
         geometry_type=geometry.type,
     )
@@ -46,14 +55,27 @@ def get_filtered_geometries_in_polygon(
 )
 def get_filtered_geometries_in_multipolygon(
     geometry: MultiPolygonGeometry,
+    area_id: int = 0,
 ) -> list[ZefirMapBuildingResponse]:
+    area = area_scenario_mapping.get(area_id)
+    if area is None or (area_map_resource := map_resource.get(area.name)) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Area ID {area_id} not found",
+        )
     return get_buildings_from_geometry(
-        resource_df=map_resource,
+        resource_df=area_map_resource,
         coordinates=geometry.coordinates,
         geometry_type=geometry.type,
     )
 
 
 @zefir_map_router.get("/get_points", response_model=list[ZefirMapPointResponse])
-def get_map_points() -> list[ZefirMapPointResponse]:
-    return get_points(resource_df=points_resource)
+def get_map_points(area_id: int = 0) -> list[ZefirMapPointResponse]:
+    area = area_scenario_mapping.get(area_id)
+    if area is None or (area_point_resource := points_resource.get(area.name)) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Area ID {area_id} not found",
+        )
+    return get_points(resource_df=area_point_resource)

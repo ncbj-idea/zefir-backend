@@ -17,7 +17,7 @@
 from fastapi import APIRouter, HTTPException, Query, status
 
 from zefir_api.api.crud.zefir_data import method_to_data_category_map
-from zefir_api.api.parameters import DataCategory, ScenarioId
+from zefir_api.api.parameters import DataCategory
 from zefir_api.api.payload.zefir_data import (
     ZefirDataResponse,
     ZefirFuelUnitsResponse,
@@ -32,7 +32,7 @@ zefir_data_router = APIRouter(prefix="/zefir_data")
 @zefir_data_router.get("/get_data", response_model=ZefirDataResponse)
 def get_zefir_data(
     data_category: DataCategory,
-    scenario_id: ScenarioId = Query(ScenarioId.SCENARIO_1),
+    scenario_id: int = Query(0),
 ) -> ZefirDataResponse:
     if scenario_id not in ze:
         raise HTTPException(
@@ -45,7 +45,7 @@ def get_zefir_data(
 
 
 @zefir_data_router.get("/get_years", response_model=ZefirYearsResponse)
-def get_sequence_of_years(scenario_id: ScenarioId) -> ZefirYearsResponse:
+def get_sequence_of_years(scenario_id: int) -> ZefirYearsResponse:
     if scenario_id not in ze:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

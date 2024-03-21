@@ -20,6 +20,7 @@ from typing import Final
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from zefir_api.api.router.areas import areas_router
 from zefir_api.api.router.root import root_router
 from zefir_api.api.router.zefir_aggregate import zefir_agg_router
 from zefir_api.api.router.zefir_data import zefir_data_router
@@ -62,3 +63,4 @@ app.include_router(zefir_data_router)
 app.include_router(zefir_agg_router)
 app.include_router(zefir_map_router)
 app.include_router(zefir_static_router)
+app.include_router(areas_router)

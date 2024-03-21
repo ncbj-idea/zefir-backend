@@ -13,12 +13,16 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import numpy as np
 import pandas as pd
 from zefir_analytics import ZefirEngine
 
 from zefir_api.api.config import params_config
-from zefir_api.api.crud.utils import flatten_multiindex, get_aggr_by_generator_name
+from zefir_api.api.crud.utils import (
+    flatten_multiindex,
+    get_mapped_generator_to_aggr,
+    filter_generators_by_tag,
+)
 from zefir_api.api.parameters import AggregateType
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
 
@@ -60,19 +64,17 @@ def _get_energy_type_usage(ze: ZefirEngine, energy_type: str) -> ZefirDataRespon
         factor_df = _map_agg_name_to_agg_type(factor_df)
         return ZefirDataResponse.from_technology_df(df=factor_df)
     df = flatten_multiindex(df=df)
-    df = df.rename(
-        {
-            name: get_aggr_by_generator_name(
-                gen_name=name, ze=ze, energy_type=energy_type
-            )
-            for name in df.index
-        }
-    )
-    if "not_found_energy_type" in df.index:
-        df = df.drop(index="not_found_energy_type")
-    df = df.groupby(df.index).sum()
+    df = get_mapped_generator_to_aggr(df=df, ze=ze, energy_type=energy_type)
     filtered_factor_df = factor_df.loc[factor_df.index.isin(df.index)]
-    summed_df = df + filtered_factor_df
+    series_list = []
+    for t in filter_generators_by_tag(ze=ze, tags=["thermo"]):
+        series = ze.result_dict["generators_results"]["generation"][t.name].sum()
+        series.name = t.name
+        series_list.append(series)
+    df_tech = pd.concat(series_list, axis=1).T
+    df_tech.columns = df_tech.columns.astype(np.integer)
+    df_tech = get_mapped_generator_to_aggr(df=df_tech, ze=ze, energy_type=energy_type)
+    summed_df = df + filtered_factor_df - df_tech
     summed_df = _map_agg_name_to_agg_type(summed_df)
     return ZefirDataResponse.from_technology_df(df=summed_df)
 

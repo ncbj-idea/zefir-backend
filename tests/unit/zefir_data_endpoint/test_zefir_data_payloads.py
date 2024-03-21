@@ -63,37 +63,37 @@ def _check_response_json(
 def test_get_installed_power_version(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "installed_power"},
+        params={"scenario_id": 0, "data_category": "installed_power"},
     )
     assert response.status_code == 200
     data = response.json()
-    _check_response_json(data, 13)
+    _check_response_json(data, 12)
 
 
 def test_get_ee_production(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "ee_production"},
+        params={"scenario_id": 0, "data_category": "ee_production"},
     )
     assert response.status_code == 200
     data = response.json()
-    _check_response_json(data, 13)
+    _check_response_json(data, 12)
 
 
 def test_get_heat_production(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "heat_production"},
+        params={"scenario_id": 0, "data_category": "heat_production"},
     )
     assert response.status_code == 200
     data = response.json()
-    _check_response_json(data, 13)
+    _check_response_json(data, 12)
 
 
 def test_get_ee_usage(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "ee_usage"},
+        params={"scenario_id": 0, "data_category": "ee_usage"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -103,7 +103,7 @@ def test_get_ee_usage(client: TestClient) -> None:
 def test_get_heat_usage(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "heat_usage"},
+        params={"scenario_id": 0, "data_category": "heat_usage"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -113,7 +113,7 @@ def test_get_heat_usage(client: TestClient) -> None:
 def test_get_amount_of_devices(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "amount_of_devices"},
+        params={"scenario_id": 0, "data_category": "amount_of_devices"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -123,7 +123,7 @@ def test_get_amount_of_devices(client: TestClient) -> None:
 def test_get_emissions(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "emissions"},
+        params={"scenario_id": 0, "data_category": "emissions"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -133,7 +133,7 @@ def test_get_emissions(client: TestClient) -> None:
 def test_get_fuel_usage(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "fuel_usage"},
+        params={"scenario_id": 0, "data_category": "fuel_usage"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -143,7 +143,7 @@ def test_get_fuel_usage(client: TestClient) -> None:
 def test_get_capex(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "capex"},
+        params={"scenario_id": 0, "data_category": "capex"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -153,7 +153,7 @@ def test_get_capex(client: TestClient) -> None:
 def test_get_opex(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "opex"},
+        params={"scenario_id": 0, "data_category": "opex"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -163,7 +163,7 @@ def test_get_opex(client: TestClient) -> None:
 def test_get_var_cost(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "var_cost"},
+        params={"scenario_id": 0, "data_category": "var_cost"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -173,7 +173,7 @@ def test_get_var_cost(client: TestClient) -> None:
 def test_get_ets(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "ets"},
+        params={"scenario_id": 0, "data_category": "ets"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -183,7 +183,7 @@ def test_get_ets(client: TestClient) -> None:
 def test_get_total_costs(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "total_costs"},
+        params={"scenario_id": 0, "data_category": "total_costs"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -193,7 +193,7 @@ def test_get_total_costs(client: TestClient) -> None:
 def test_get_transport_emissions(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 1, "data_category": "transport_emissions"},
+        params={"scenario_id": 0, "data_category": "transport_emissions"},
     )
     assert response.status_code == 200
     data = response.json()

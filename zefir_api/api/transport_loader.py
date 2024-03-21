@@ -15,62 +15,61 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-from pathlib import Path
 from typing import Final
 
 import pandas as pd
 
 from zefir_api.api.config import params_config
+from zefir_api.api.zefir_engine import area_scenario_mapping
 
 
 class TransportLoader:
     @staticmethod
     def load_data(
-        resources_path: Path,
         emission_prefix: str = "emission_",
         capex_name: str = "capex",
-    ) -> tuple[dict[str, pd.DataFrame], dict[str, dict[str, pd.DataFrame]]]:
-        emission_dict: dict[str, dict[str, pd.DataFrame]] = defaultdict(dict)
-        capex_dict: dict[str, pd.DataFrame] = {}
-        for scenario_folder in resources_path.iterdir():
-            scenario_name = scenario_folder.name
-            for file_path in scenario_folder.iterdir():
-                file_name = file_path.stem
-                if emission_prefix in file_name:
-                    emission_type = file_name.replace(emission_prefix, "")
-                    df = pd.read_csv(file_path, index_col="Year").T
-                    df.columns = df.columns.astype(int)
-                    emission_dict[scenario_name][emission_type] = df
-                elif file_name == capex_name:
-                    df = pd.read_csv(file_path, index_col="Year").T
-                    df.columns = df.columns.astype(int)
-                    capex_dict[scenario_name] = df
+    ) -> tuple[dict[int, pd.DataFrame], dict[int, dict[str, pd.DataFrame]]]:
+        emission_dict: dict[int, dict[str, pd.DataFrame]] = defaultdict(dict)
+        capex_dict: dict[int, pd.DataFrame] = {}
+        for area in area_scenario_mapping.values():
+            area_transport_path = params_config.get_transport_path(area.name)
+            for scenario in area.scenarios:
+                for file_path in (area_transport_path / scenario.name).iterdir():
+                    file_name = file_path.stem
+                    if emission_prefix in file_name:
+                        emission_type = file_name.replace(emission_prefix, "")
+                        df = pd.read_csv(file_path, index_col="Year").T
+                        df.columns = df.columns.astype(int)
+                        emission_dict[scenario.id][emission_type] = df
+                    elif file_name == capex_name:
+                        df = pd.read_csv(file_path, index_col="Year").T
+                        df.columns = df.columns.astype(int)
+                        capex_dict[scenario.id] = df
+
         return capex_dict, emission_dict
 
 
 class TransportDataHolder:
-    def __init__(self, resources_path: str | Path) -> None:
-        self._capex, self._emissions = TransportLoader.load_data(
-            resources_path=Path(resources_path)
-        )
+    def __init__(self) -> None:
+        self._capex, self._emissions = TransportLoader.load_data()
 
     @property
-    def capex(self) -> dict[str, pd.DataFrame]:
+    def capex(self) -> dict[int, pd.DataFrame]:
         return self._capex
 
     @property
-    def emissions(self) -> dict[str, dict[str, pd.DataFrame]]:
+    def emissions(self) -> dict[int, dict[str, pd.DataFrame]]:
         return self._emissions
 
-    def get_capex(self, scenario_name: str) -> pd.DataFrame:
-        if scenario_name not in self._capex:
-            raise KeyError(f"{scenario_name} not found in loaded resources")
-        return self._capex[scenario_name]
+    def get_capex(self, scenario_id: int) -> pd.DataFrame:
+        if scenario_id not in self._capex:
+            raise KeyError(f"{scenario_id} not found in loaded resources")
+        return self._capex[scenario_id]
 
-    def get_transport_emissions(self, scenario_name: str) -> dict[str, pd.DataFrame]:
-        if scenario_name not in self._emissions:
-            raise KeyError(f"{scenario_name} not found in loaded resources")
-        return self._emissions[scenario_name]
+    def get_transport_emissions(self, scenario_id: int) -> dict[str, pd.DataFrame]:
+        if scenario_id not in self._emissions:
+            raise KeyError(f"{scenario_id} not found in loaded resources")
+        return self._emissions[scenario_id]
 
 
-transport_holder: Final = TransportDataHolder(params_config.transport_path)
+transport_holder: Final = TransportDataHolder()

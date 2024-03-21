@@ -31,8 +31,8 @@ def load_geo_file(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def load_polygon_map_file() -> gpd.GeoDataFrame:
-    df = load_geo_file(params_config.polygons_file_path)
+def load_polygon_map_file(filepath: Path) -> gpd.GeoDataFrame:
+    df = load_geo_file(filepath)
     df["geometry"] = df["coordinates"].apply(
         lambda x: Polygon([(point[0], point[1]) for point in x[0]])
     )
@@ -40,5 +40,29 @@ def load_polygon_map_file() -> gpd.GeoDataFrame:
     return gdf
 
 
-map_resource: Final = load_polygon_map_file()
-points_resource: Final = load_geo_file(params_config.points_file_path)
+def load_areas_polygon_maps() -> dict[str, gpd.GeoDataFrame]:
+    area_polygon_dict = {}
+    for area_dir in params_config.areas_path.iterdir():
+        if not area_dir.iterdir():
+            continue
+        area_name = area_dir.name
+        area_polygon_dict[area_name] = load_polygon_map_file(
+            params_config.get_polygons_file_path(area_name)
+        )
+    return area_polygon_dict
+
+
+def load_areas_points_maps() -> dict[str, pd.DataFrame]:
+    area_points_dict = {}
+    for area_dir in params_config.areas_path.iterdir():
+        if not area_dir.iterdir():
+            continue
+        area_name = area_dir.name
+        area_points_dict[area_name] = load_geo_file(
+            params_config.get_points_file_path(area_name)
+        )
+    return area_points_dict
+
+
+map_resource: Final = load_areas_polygon_maps()
+points_resource: Final = load_areas_points_maps()

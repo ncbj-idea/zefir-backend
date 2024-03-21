@@ -81,7 +81,7 @@ class ZefirYearsResponse(BaseModel):
 
     @staticmethod
     def get_years(ze: ZefirEngine) -> ZefirYearsResponse:
-        return ZefirYearsResponse(years=list(ze._params["year_sample"].to_numpy()))
+        return ZefirYearsResponse(years=ze._year_sample)
 
 
 class ZefirTechnologyTranslationResponse(BaseModel):

@@ -21,6 +21,7 @@ from zefir_api.api.config import params_config
 from zefir_api.api.crud.utils import (
     flatten_multiindex,
     get_row_amount_of_device_in_agg,
+    filter_generators_by_tag,
     translate_df_by_map,
 )
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
@@ -56,6 +57,10 @@ def get_installed_power(ze: ZefirEngine) -> ZefirDataResponse:
     power_df = ze.source_params.get_installed_capacity(level="type")
     power_df = flatten_multiindex(df=power_df)
     power_df = _filter_types_to_not_display_at_installed_power(df=power_df)
+    thermo_techs = set(
+        [g.energy_source_type for g in filter_generators_by_tag(ze=ze, tags=["thermo"])]
+    )
+    power_df = power_df[~power_df.index.isin(thermo_techs)]
     power_df = translate_df_by_map(
         df=power_df, mapping_dict=translator.translated_names
     )

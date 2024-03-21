@@ -17,7 +17,11 @@
 from zefir_analytics import ZefirEngine
 
 from zefir_api.api.config import params_config
-from zefir_api.api.crud.utils import flatten_multiindex, translate_df_by_map
+from zefir_api.api.crud.utils import (
+    flatten_multiindex,
+    filter_generators_by_tag,
+    translate_df_by_map,
+)
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
 from zefir_api.api.translation import translator
 
@@ -25,6 +29,10 @@ from zefir_api.api.translation import translator
 def _get_energy_type_production(ze: ZefirEngine, energy_type: str) -> ZefirDataResponse:
     df = ze.source_params.get_generation_sum(level="type")[[energy_type]].dropna()
     df = flatten_multiindex(df=df)
+    thermo_techs = set(
+        [g.energy_source_type for g in filter_generators_by_tag(ze=ze, tags=["thermo"])]
+    )
+    df = df[~df.index.isin(thermo_techs)]
     df = translate_df_by_map(df=df, mapping_dict=translator.translated_names)
     return ZefirDataResponse.from_technology_df(df=df)
 
