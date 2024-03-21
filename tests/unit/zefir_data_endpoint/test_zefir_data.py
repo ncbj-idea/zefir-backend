@@ -24,10 +24,9 @@ def test_get_data_scenario_out_of_range(client: TestClient) -> None:
         "/zefir_data/get_data",
         params={"scenario_id": 999999999, "data_category": "installed_power"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 404
     data = response.json()
-    assert data["detail"][0]["input"] == 999999999
-    assert data["detail"][0]["msg"] == "Input should be 1, 2, 3, 4, 5, 6, 7, 8, 9 or 10"
+    assert data["detail"] == "Scenario_id 999999999 not found"
 
 
 def test_get_data_wrong_data_category(client: TestClient) -> None:
@@ -42,18 +41,18 @@ def test_get_data_wrong_data_category(client: TestClient) -> None:
         data["detail"][0]["msg"]
         == "Input should be 'installed_power', 'ee_production', 'heat_production', 'cold_production', "
         "'ee_usage', 'heat_usage', 'cold_usage', 'amount_of_devices', 'emissions', 'transport_emissions', "
-        "'fuel_usage', 'capex', 'opex', 'var_cost', 'ets' or 'total_costs'"
+        "'fuel_usage', 'capex', 'thermo_capex', 'opex', 'var_cost', 'ets' or 'total_costs'"
     )
 
 
 def test_get_data_scenario_not_found_file(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_data",
-        params={"scenario_id": 2, "data_category": "installed_power"},
+        params={"scenario_id": 3, "data_category": "installed_power"},
     )
     assert response.status_code == 404
     data = response.json()
-    assert data["detail"] == "Scenario_id 2 not found"
+    assert data["detail"] == "Scenario_id 3 not found"
 
 
 def test_get_data_default_scenario_id(client: TestClient) -> None:
@@ -67,7 +66,7 @@ def test_get_data_default_scenario_id(client: TestClient) -> None:
 def test_get_years_correct_id(client: TestClient) -> None:
     response = client.get(
         "/zefir_data/get_years",
-        params={"scenario_id": 1},
+        params={"scenario_id": 0},
     )
     assert response.status_code == 200
     assert response.json()["years"] == [0, 1, 2]

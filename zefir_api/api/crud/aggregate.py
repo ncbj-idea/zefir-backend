@@ -156,7 +156,7 @@ def _get_unique_element_type_from_buses(network: Network, buses: set[str]) -> se
 def get_agg_totals(
     ze: ZefirEngine, aggregate_type: AggregateType
 ) -> ZefirAggregateTotals:
-    ys_len = len(ze._params["year_sample"])
+    ys_len = len(ze._year_sample)
     aggregates = _filter_by_agg_type(ze=ze, aggregate_type=aggregate_type)
     if aggregates:
         total_amount_of_buildings = (
@@ -217,7 +217,7 @@ def get_details(
     n_consumers = ze.aggregated_consumer_params.get_n_consumers()
     fraction_consumers = get_row_amount_of_device_in_agg(fractions, n_consumers)
     gen_demand = ze.source_params.get_generation_demand(level="element").dropna()
-    ys_len = len(ze._params["year_sample"])
+    ys_len = len(ze._year_sample)
 
     for consumption_type, agg_list in agg_consumption_filtered.items():
         area = _get_area_data(agg_list, fraction_consumers)

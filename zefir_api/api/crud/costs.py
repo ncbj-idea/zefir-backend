@@ -19,10 +19,15 @@ from collections import defaultdict
 import pandas as pd
 from zefir_analytics import ZefirEngine
 
-from zefir_api.api.crud.utils import flatten_multiindex, translate_df_by_map
+from zefir_api.api.crud.utils import (
+    flatten_multiindex,
+    filter_generators_by_tag,
+    translate_df_by_map,
+)
 from zefir_api.api.payload.zefir_data import ZefirDataResponse
 from zefir_api.api.translation import translator
 from zefir_api.api.transport_loader import transport_holder
+from zefir_api.api.zefir_engine import get_scenario_id
 
 
 def _calculate_ets_emission_costs(
@@ -53,11 +58,17 @@ def _calculate_ets_emission_costs(
     return emissions_dict
 
 
-def _get_cost_type(ze: ZefirEngine, cost_type: str) -> ZefirDataResponse:
+def _get_cost_type(
+    ze: ZefirEngine, cost_type: str, thermo_capex: bool = False
+) -> ZefirDataResponse:
     df = ze.source_params.get_capex_opex(level="type")[[cost_type]].dropna()
     df = flatten_multiindex(df=df)
     if cost_type == "capex":
-        capex_transport_df = transport_holder.get_capex(ze._scenario_name)
+        capex_transport_df = transport_holder.get_capex(
+            get_scenario_id(ze.scenario_name)
+        )
+        if thermo_capex:
+            df = df[df.index.isin(filter_generators_by_tag(ze=ze, tags=["thermo"]))]
         df = pd.concat([df, capex_transport_df])
     return ZefirDataResponse.from_technology_df(df)
 
@@ -90,6 +101,10 @@ def _calculate_ets_fee(ze: ZefirEngine) -> pd.DataFrame:
 
 def get_capex(ze: ZefirEngine) -> ZefirDataResponse:
     return _get_cost_type(ze=ze, cost_type="capex")
+
+
+def get_thermo_capex(ze: ZefirEngine) -> ZefirDataResponse:
+    return _get_cost_type(ze=ze, cost_type="capex", thermo_capex=True)
 
 
 def get_opex(ze: ZefirEngine) -> ZefirDataResponse:

@@ -14,27 +14,63 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+import json
+from pathlib import Path
 from typing import Final
 
 from zefir_analytics import ZefirEngine
 
 from zefir_api.api.config import params_config
+from zefir_api.api.parameters import Area, Scenario
+
+AREA_MAP = dict[int, Area]
 
 
-def create_zefir_engines() -> dict[int, ZefirEngine]:
-    scenarios_folder = params_config.source_path / "scenarios"
+def load_area_scenario_mapping(mapping_filepath: Path) -> AREA_MAP:
+    with open(mapping_filepath) as f:
+        return create_area_scenario_mapping(json.load(f))
+
+
+def create_area_scenario_mapping(area_json: dict) -> AREA_MAP:
+    result_dict = {}
+    scenario_id_count = 0
+    for area_id, area_name in enumerate(area_json):
+        scenarios = []
+        for scenario in area_json[area_name]:
+            scenarios.append(
+                Scenario(
+                    id=scenario_id_count,
+                    name=scenario["scenario_name"],
+                    description=scenario["description"],
+                )
+            )
+            scenario_id_count += 1
+
+        area = Area(id=area_id, name=area_name, scenarios=tuple(scenarios))
+        result_dict[area_id] = area
+
+    return result_dict
+
+
+def create_zefir_engines(area_scenario_map: AREA_MAP) -> dict[int, ZefirEngine]:
     return {
-        int(id_.group()): ZefirEngine(
-            source_path=params_config.source_path,
-            result_path=params_config.result_path / scenario_name.name,
-            config_path=params_config.config_path,
-            parameter_path=params_config.parameter_path,
-            scenario_name=scenario_name.name,
+        scenario.id: ZefirEngine.create_from_config(
+            params_config.get_config_path(area.name, scenario.name)
         )
-        for scenario_name in scenarios_folder.iterdir()
-        if (id_ := re.search(r"\d+", scenario_name.name)) is not None
+        for area in area_scenario_map.values()
+        for scenario in area.scenarios
     }
 
 
-ze: Final = create_zefir_engines()
+area_scenario_mapping: Final[AREA_MAP] = load_area_scenario_mapping(
+    params_config.areas_mapping_filepath
+)
+ze: Final = create_zefir_engines(area_scenario_mapping)
+
+
+def get_scenario_id(scenario_name: str) -> int:
+    for area in area_scenario_mapping.values():
+        for scenario in area.scenarios:
+            if scenario.name == scenario_name:
+                return scenario.id
+    raise ValueError(f"Scenario {scenario_name} not found")

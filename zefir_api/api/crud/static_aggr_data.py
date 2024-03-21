@@ -18,8 +18,8 @@ from zefir_api.api.payload.zefir_static import StaticAggrDataResponse, StaticAgg
 from zefir_api.api.static_data import StaticData
 
 
-def get_aggr_static_data() -> list[StaticAggrDataResponse]:
-    aggr_data = StaticData.load_static_aggr_data()
+def get_aggr_static_data(area_name: str) -> list[StaticAggrDataResponse]:
+    aggr_data = StaticData.load_static_aggr_data(area_name)
     return [
         StaticAggrDataResponse(
             aggr_type=aggr_type,

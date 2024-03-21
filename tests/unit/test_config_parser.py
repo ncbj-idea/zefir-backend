@@ -20,7 +20,6 @@ from pathlib import Path
 import pytest
 
 from zefir_api.api.config import ConfigParams, ConfigParser
-from zefir_api.api.utils import get_resources
 
 
 @pytest.fixture
@@ -36,10 +35,6 @@ def temporary_config_file() -> str:
         [names]
         production_ee_name = Electricity
         production_heat_name = Heating
-
-        [paths]
-        source_path = /tmp/source_dir
-        result_path = /tmp/result_dir
         """
 
         with open(temp_config_file_path, "w") as temp_config_file:
@@ -53,7 +48,6 @@ def test_default_config_params() -> None:
     assert config_params.production_cold_name == "COLD"
     assert config_params.tags_to_drop == ["KSE", "KSE_CONN", "HD_CONN"]
     assert config_params.usage_heat_name == "HEAT"
-    assert config_params.source_path == get_resources("source_csv")
 
 
 def test_load_config_with_valid_file(temporary_config_file: str) -> None:
@@ -61,5 +55,3 @@ def test_load_config_with_valid_file(temporary_config_file: str) -> None:
 
     assert config_params.production_ee_name == "Electricity"
     assert config_params.production_heat_name == "Heating"
-    assert config_params.source_path == Path("/tmp/source_dir")
-    assert config_params.result_path == Path("/tmp/result_dir")

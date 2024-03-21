@@ -22,6 +22,7 @@ from zefir_api.api.crud.costs import (
     get_capex,
     get_ets,
     get_opex,
+    get_thermo_capex,
     get_total_costs,
     get_var_cost,
 )
@@ -61,6 +62,7 @@ method_to_data_category_map: Final[
     DataCategory.EMISSIONS: get_emissions,
     DataCategory.FUEL_USAGE: get_fuel_usage,
     DataCategory.CAPEX: get_capex,
+    DataCategory.THERMO_CAPEX: get_thermo_capex,
     DataCategory.OPEX: get_opex,
     DataCategory.VAR_COST: get_var_cost,
     DataCategory.ETS: get_ets,

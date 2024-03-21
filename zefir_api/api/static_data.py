@@ -44,23 +44,17 @@ class StaticData(JsonLoader):
         return data_dict
 
     @staticmethod
-    def load_static_plots_data() -> dict[str, pd.DataFrame]:
+    def load_static_plots_data(area_name: str) -> dict[str, pd.DataFrame]:
         return StaticData.load_csv_to_dict(
-            path=params_config.plots_path,
+            path=params_config.get_plots_path(area_name),
             index_col="name",
             enum=StaticPlotsFileNames,
         )
 
     @staticmethod
-    def load_static_aggr_data() -> dict[str, pd.DataFrame]:
+    def load_static_aggr_data(area_name: str) -> dict[str, pd.DataFrame]:
         return StaticData.load_csv_to_dict(
-            path=params_config.aggregate_data_path,
+            path=params_config.get_aggregate_data_path(area_name),
             index_col="aggr_type",
             enum=AggregateType,
         )
-
-    @staticmethod
-    def load_scenarios_description(scenario_name: str) -> str:
-        return StaticData._load_json(
-            json_path=params_config.scenario_description_path,
-        )[scenario_name]

@@ -22,7 +22,7 @@ def test_get_scenario_description(client: TestClient) -> None:
         "/zefir_static/get_scenario_description",
     )
     expected_response = {
-        "id": 1,
+        "id": 0,
         "name": "scenario_1",
         "total_cost": 2885025053926.2666,
         "total_capex": 8263967.174171254,

@@ -14,21 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import Enum, IntEnum, StrEnum, auto, unique
-
-
-@unique
-class ScenarioId(IntEnum):
-    SCENARIO_1 = auto()
-    SCENARIO_2 = auto()
-    SCENARIO_3 = auto()
-    SCENARIO_4 = auto()
-    SCENARIO_5 = auto()
-    SCENARIO_6 = auto()
-    SCENARIO_7 = auto()
-    SCENARIO_8 = auto()
-    SCENARIO_9 = auto()
-    SCENARIO_10 = auto()
+from dataclasses import dataclass
+from enum import Enum, StrEnum, auto, unique
 
 
 @unique
@@ -45,6 +32,7 @@ class DataCategory(StrEnum):
     TRANSPORT_EMISSIONS = auto()
     FUEL_USAGE = auto()
     CAPEX = auto()
+    THERMO_CAPEX = auto()
     OPEX = auto()
     VAR_COST = auto()
     ETS = auto()
@@ -75,3 +63,17 @@ class StaticPlotsFileNames(StrEnum):
     HEAT_ENABLE = auto()
     HEAT_USAGE = auto()
     HEATED_AREA = auto()
+
+
+@dataclass(frozen=True)
+class Scenario:
+    id: int
+    name: str
+    description: str
+
+
+@dataclass(frozen=True)
+class Area:
+    id: int
+    name: str
+    scenarios: tuple[Scenario, ...]

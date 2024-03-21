@@ -96,9 +96,9 @@ def get_buildings_from_geometry(
             coordinates=data["coordinates"],
             building_type=data["buildingType"],
             heat_type=data["heatType"],
-            name=id_,
+            name=id,
         )
-        for id_, data in filtered_df.to_dict("index").items()
+        for id, data in filtered_df.to_dict("index").items()
     ]
 
 
@@ -108,7 +108,7 @@ def get_points(resource_df: pd.DataFrame) -> list[ZefirMapPointResponse]:
             coordinates=data["coordinates"],
             building_type=data["buildingType"],
             heat_type=data["heatType"],
-            name=id_,
+            name=id,
             boilerEmission=data["boilerEmission"],
             CO2=data["CO2"],
             CO=data["CO"],
@@ -118,5 +118,5 @@ def get_points(resource_df: pd.DataFrame) -> list[ZefirMapPointResponse]:
             PM10=data["PM10"],
             PM25=data["PM25"],
         )
-        for id_, data in resource_df.to_dict("index").items()
+        for id, data in resource_df.to_dict("index").items()
     ]

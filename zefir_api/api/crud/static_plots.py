@@ -31,8 +31,8 @@ def _get_common_sorted_indexes(df_dict: dict[str, pd.DataFrame]) -> list[str]:
         return list(df_dict.values())[0].index.to_list()
 
 
-def get_static_plots() -> StaticPlotsResponse:
-    static_plots_data = StaticData.load_static_plots_data()
+def get_static_plots(area_name: str) -> StaticPlotsResponse:
+    static_plots_data = StaticData.load_static_plots_data(area_name)
     unique_indexes = _get_common_sorted_indexes(static_plots_data)
     for attr_name, df in static_plots_data.items():
         data = [

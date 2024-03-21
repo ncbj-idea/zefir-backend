@@ -17,7 +17,7 @@
 from fastapi import APIRouter, HTTPException, Query, status
 
 from zefir_api.api.crud.aggregate import get_agg_totals, get_details, get_stacks_info
-from zefir_api.api.parameters import AggregateType, ScenarioId
+from zefir_api.api.parameters import AggregateType
 from zefir_api.api.payload.zefir_aggregate import (
     ZefirAggregateDetail,
     ZefirAggregateStacks,
@@ -31,7 +31,7 @@ zefir_agg_router = APIRouter(prefix="/zefir_aggregate")
 @zefir_agg_router.get("/get_totals", response_model=ZefirAggregateTotals)
 def get_zefir_agg_totals(
     aggregate_type: AggregateType,
-    scenario_id: ScenarioId = Query(ScenarioId.SCENARIO_1),
+    scenario_id: int = Query(0),
 ) -> ZefirAggregateTotals:
     if scenario_id not in ze:
         raise HTTPException(
@@ -45,7 +45,7 @@ def get_zefir_agg_totals(
 @zefir_agg_router.get("/get_stacks", response_model=list[ZefirAggregateStacks])
 def get_zefir_agg_stacks(
     aggregate_type: AggregateType,
-    scenario_id: ScenarioId = Query(ScenarioId.SCENARIO_1),
+    scenario_id: int = Query(0),
 ) -> list[ZefirAggregateStacks]:
     if scenario_id not in ze:
         raise HTTPException(
@@ -59,7 +59,7 @@ def get_zefir_agg_stacks(
 @zefir_agg_router.get("/details", response_model=list[ZefirAggregateDetail])
 def get_zefir_agg_details(
     aggregate_type: AggregateType,
-    scenario_id: ScenarioId = Query(ScenarioId.SCENARIO_1),
+    scenario_id: int = Query(0),
 ) -> list[ZefirAggregateDetail]:
     if scenario_id not in ze:
         raise HTTPException(

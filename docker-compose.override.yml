@@ -1,0 +1,8 @@
+---
+version: '3.8'
+services:
+  zefir_api:
+    build:
+      args:
+        - DOCKER_IMAGE=docker.nexus.services.idea.edu.pl/library/python:3.11
+        - PIP_INDEX=https://nexus.services.idea.edu.pl/repository/pypi-all/simple
